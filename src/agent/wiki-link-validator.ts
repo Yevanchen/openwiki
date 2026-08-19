@@ -1,4 +1,4 @@
-import type { BackendProtocolV2, FileInfo } from "deepagents";
+import type { BackendProtocol, FileInfo } from "./backend-protocol.js";
 import path from "node:path";
 import type { OpenWikiOutputMode } from "./types.js";
 
@@ -90,7 +90,7 @@ export interface WikiLinkReport {
  * fixed link leaves no residual comment.
  */
 export async function validateWikiInternalLinks(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   outputMode: OpenWikiOutputMode,
 ): Promise<WikiLinkReport> {
   const wikiRoot = outputMode === "local-wiki" ? "/" : "/openwiki";
@@ -210,7 +210,7 @@ export function stampBrokenLinks(
  * only when its target genuinely does not exist.
  */
 async function validateLink(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   sourcePath: string,
   rawHref: string,
   line: number,
@@ -293,7 +293,7 @@ async function validateLink(
  * file under a directory, skipping dotfiles and reserved control files.
  */
 async function collectMarkdownFiles(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   directoryPath: string,
 ): Promise<string[]> {
   const result = await backend.ls(directoryPath);
@@ -470,7 +470,7 @@ function isExternalHref(href: string): boolean {
  * the backend. Any read error is treated as "does not exist".
  */
 async function pathExists(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   targetPath: string,
   isDirectory: boolean,
 ): Promise<boolean> {
@@ -492,7 +492,7 @@ async function pathExists(
  * throwing when the file is missing or not text.
  */
 async function readText(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   filePath: string,
 ): Promise<string> {
   const result = await backend.readRaw(filePath);

@@ -1,4 +1,4 @@
-import type { BackendProtocolV2 } from "deepagents";
+import type { BackendProtocol } from "../../src/agent/backend-protocol.ts";
 import { describe, expect, test, vi } from "vitest";
 import {
   conceptBodiesEqual,
@@ -425,7 +425,7 @@ describe("validatePersistedFile", () => {
   function backend(read: {
     error?: string;
     content?: string | string[] | Uint8Array;
-  }): BackendProtocolV2 {
+  }): BackendProtocol {
     return {
       readRaw: vi.fn(() => ({
         error: read.error,
@@ -439,7 +439,7 @@ describe("validatePersistedFile", () => {
                 modified_at: "2026-07-13T00:00:00.000Z",
               },
       })),
-    } as unknown as BackendProtocolV2;
+    } as unknown as BackendProtocol;
   }
 
   test("validates the joined text of a persisted file", async () => {

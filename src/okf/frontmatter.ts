@@ -1,4 +1,4 @@
-import type { BackendProtocolV2 } from "deepagents";
+import type { BackendProtocol } from "../agent/backend-protocol.js";
 import { parse } from "yaml";
 
 /**
@@ -271,7 +271,7 @@ function isNonEmptyString(value: unknown): value is string {
  * Reads a persisted Markdown file and validates its final front matter.
  */
 export async function validatePersistedFile(
-  backend: BackendProtocolV2,
+  backend: BackendProtocol,
   filePath: string,
 ): Promise<FrontmatterValidation> {
   const read = await backend.readRaw(filePath);

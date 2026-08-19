@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Box, useApp } from "ink";
 import { scheduler } from "node:timers/promises";
 import { createOpenWikiThreadId, runOpenWikiAgent } from "../../agent/index.js";
+import { isMosooRuntimeSelected } from "../../agent/mosoo.js";
 import type {
   OpenWikiCommand,
   OpenWikiRunEvent,
@@ -132,12 +133,14 @@ export function App({ command }: AppProps) {
   const [activeMessageIsFollowup, setActiveMessageIsFollowup] = useState(
     command.kind === "run" && command.command === "chat",
   );
+  const useMosoo = isMosooRuntimeSelected();
   const shouldOpenSetupForExplicitModeChat =
     command.kind === "run" &&
     !command.dryRun &&
     !command.shouldStart &&
     command.modeSource !== "default" &&
     process.stdin.isTTY &&
+    !useMosoo &&
     needsCredentialSetup(sessionModelId, runMode);
   const [resolvedCommand, setResolvedCommand] =
     useState<OpenWikiCommand | null>(
@@ -157,6 +160,7 @@ export function App({ command }: AppProps) {
     !command.dryRun &&
     process.stdin.isTTY &&
     runState.status === "idle" &&
+    !useMosoo &&
     (needsCredentialSetup(sessionModelId, runMode) ||
       (isInitCommand && !initWizardConsumed));
   const displayModelId = sessionModelId ?? startupModelId;
@@ -415,7 +419,7 @@ export function App({ command }: AppProps) {
 
     const missingEnvKey = getMissingProviderEnvKey(sessionProvider);
 
-    if (missingEnvKey && !process.stdin.isTTY) {
+    if (!useMosoo && missingEnvKey && !process.stdin.isTTY) {
       const hint = getProviderCredentialHint(sessionProvider);
 
       setRunState({

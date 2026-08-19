@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
-import { OpenWikiLocalShellBackend } from "../../src/agent/docs-only-backend.ts";
+import { TestFilesystemBackend } from "../helpers/fs-backend.ts";
 import {
   formatBrokenLinkStamp,
   formatWikiLinkIssues,
@@ -15,12 +15,7 @@ async function setupWiki(
   outputMode: "local-wiki" | "repository" = "repository",
 ) {
   const rootDir = await mkdtemp(path.join(os.tmpdir(), "openwiki-links-"));
-  const backend = new OpenWikiLocalShellBackend({
-    docsOnly: true,
-    outputMode,
-    rootDir,
-    virtualMode: true,
-  });
+  const backend = new TestFilesystemBackend(rootDir);
   return { backend, rootDir };
 }
 
