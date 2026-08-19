@@ -135,10 +135,10 @@ describe("moveMenuSelection", () => {
 
 describe("getCommandOptionIndex", () => {
   test("matches the first command the input is a prefix of", () => {
-    const modelIndex = slashCommandOptions.findIndex(
-      (option) => option.label === "/model",
+    const updateIndex = slashCommandOptions.findIndex(
+      (option) => option.label === "/update",
     );
-    expect(getCommandOptionIndex("/mo")).toBe(modelIndex);
+    expect(getCommandOptionIndex("/up")).toBe(updateIndex);
   });
 
   test("falls back to the first command when nothing matches", () => {
@@ -210,9 +210,9 @@ describe("getReasoningEffortMenuOptions", () => {
 
 describe("parseSlashInput", () => {
   test("returns the matched command and its trailing arguments", () => {
-    const parsed = parseSlashInput("/model gpt-4 extra");
-    expect(parsed?.option.id).toBe("model");
-    expect(parsed?.args).toBe("gpt-4 extra");
+    const parsed = parseSlashInput("/update refresh API docs");
+    expect(parsed?.option.id).toBe("update");
+    expect(parsed?.args).toBe("refresh API docs");
   });
 
   test("returns null for input whose first token is not a command", () => {

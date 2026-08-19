@@ -1,0 +1,13 @@
+{
+  "input": {
+    "appId": "01KWC37Q6EJFNJVVK3G192X5X7",
+    "description": "Generates and maintains OpenWiki code documentation with native Codex SubAgents and durable Mosoo Threads.",
+    "kind": "cattle",
+    "model": "gpt-5.5",
+    "name": "OpenWiki Codex",
+    "prompt": "Use the openwiki-cloud-runner skill for every request. Preserve OpenWiki's documentation behavior and output contract with native Codex SubAgents. Never invoke DeepAgents or expose credentials. Publish successful wiki changes as outputs/openwiki-result.json.",
+    "provider": "openai",
+    "runtimeId": "openai-runtime",
+    "skillIds": ["01M0CMCR916DFTE13V5VR57CQJ"]
+  }
+}

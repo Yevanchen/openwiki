@@ -1,13 +1,7 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { formatChatGptAccountFromEnv } from "../../agent/openai-chatgpt-oauth.js";
 import {
-  getDefaultModelId,
-  getProviderLabel,
-  OPENWIKI_MODEL_ID_ENV_KEY,
-  OPENWIKI_REASONING_EFFORT_ENV_KEY,
   OPENWIKI_VERSION,
-  resolveConfiguredProvider,
 } from "../../config/constants.js";
 import { sanitizeHeaderValue } from "../diagnostics/sanitize.js";
 import { formatCwd } from "../format.js";
@@ -64,34 +58,12 @@ export function Header({
   subtitle,
 }: HeaderProps) {
   const terminalColumns = process.stdout.columns ?? 80;
-  const displayModelId = sanitizeHeaderValue(
-    modelId ??
-      process.env[OPENWIKI_MODEL_ID_ENV_KEY] ??
-      getDefaultModelId(resolveConfiguredProvider()),
-    Math.max(8, terminalColumns - 12),
-  );
-  const configuredReasoningEffort =
-    process.env[OPENWIKI_REASONING_EFFORT_ENV_KEY]?.trim();
-  const displayReasoningEffort = configuredReasoningEffort
-    ? sanitizeHeaderValue(
-        configuredReasoningEffort,
-        Math.max(8, terminalColumns - 20),
-      )
-    : null;
-  const configuredProvider = resolveConfiguredProvider();
-  const displayProvider = getProviderLabel(configuredProvider);
-  const chatGptAccount =
-    configuredProvider === "openai-chatgpt"
-      ? formatChatGptAccountFromEnv()
-      : null;
+  void modelId;
   const displayDirectory = sanitizeHeaderValue(
     formatCwd(process.cwd()),
     Math.max(8, terminalColumns - 17),
   );
   const shouldShowLogo = showLogo && terminalColumns > OPENWIKI_LOGO_WIDTH;
-  const tracingEnabled =
-    process.env.LANGCHAIN_TRACING_V2 === "true" &&
-    Boolean(process.env.LANGSMITH_API_KEY);
 
   if (compact) {
     return (
@@ -100,31 +72,13 @@ export function Header({
           <Text color="cyan">{">_ "}</Text>
           <Text bold>OpenWiki</Text>{" "}
           <Text color="gray">v{OPENWIKI_VERSION}</Text>{" "}
-          <Text color="gray">provider: </Text>
-          <Text color="white">{displayProvider}</Text>{" "}
-          {chatGptAccount ? (
-            <>
-              <Text color="gray">account: </Text>
-              <Text color="white">{chatGptAccount}</Text>{" "}
-            </>
-          ) : null}
-          <Text color="gray">model: </Text>
-          <Text color="white">{displayModelId}</Text>
-          {displayReasoningEffort ? (
-            <>
-              <Text color="gray"> effort: </Text>
-              <Text color="white">{displayReasoningEffort}</Text>
-            </>
-          ) : null}
+          <Text color="gray">runtime: </Text>
+          <Text color="white">Mosoo</Text>{" "}
+          <Text color="gray">harness: </Text>
+          <Text color="white">Codex</Text>
         </Text>
         <Text>
-          <Text color={tracingEnabled ? "green" : "gray"}>
-            {tracingEnabled ? "* " : "- "}
-          </Text>
-          <Text color={tracingEnabled ? "green" : "gray"}>
-            LangSmith tracing {tracingEnabled ? "enabled" : "disabled"}
-          </Text>
-          <Text color="gray"> - </Text>
+          <Text color="green">* </Text>
           <Text color="cyan">{subtitle}</Text>
         </Text>
       </Box>
@@ -156,38 +110,20 @@ export function Header({
           <Text color="gray">agent docs for codebases</Text>
         </Text>
         <Text>
-          <Text color="gray">provider: </Text>
-          <Text color="white">{displayProvider}</Text>
+          <Text color="gray">runtime: </Text>
+          <Text color="white">Mosoo</Text>
         </Text>
-        {chatGptAccount ? (
-          <Text>
-            <Text color="gray">account: </Text>
-            <Text color="white">{chatGptAccount}</Text>
-          </Text>
-        ) : null}
         <Text>
-          <Text color="gray">model: </Text>
-          <Text color="white">{displayModelId}</Text>
+          <Text color="gray">harness: </Text>
+          <Text color="white">Codex + native SubAgents</Text>
         </Text>
-        {displayReasoningEffort ? (
-          <Text>
-            <Text color="gray">reasoning effort: </Text>
-            <Text color="white">{displayReasoningEffort}</Text>
-          </Text>
-        ) : null}
         <Text>
           <Text color="gray">directory: </Text>
           <Text color="white">{displayDirectory}</Text>
         </Text>
       </Box>
       <Text>
-        <Text color={tracingEnabled ? "green" : "gray"}>
-          {tracingEnabled ? "* " : "- "}
-        </Text>
-        <Text color={tracingEnabled ? "green" : "gray"}>
-          LangSmith tracing {tracingEnabled ? "enabled" : "disabled"}
-        </Text>
-        <Text color="gray"> - </Text>
+        <Text color="green">* </Text>
         <Text color="cyan">{subtitle}</Text>
       </Text>
       <Text color="gray">

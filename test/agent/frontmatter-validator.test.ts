@@ -1,34 +1,10 @@
-import { ToolMessage } from "@langchain/core/messages";
-import type { BackendProtocolV2 } from "deepagents";
-import { describe, expect, test, vi } from "vitest";
-import { MUTATION_PATH_METADATA_KEY } from "../../src/agent/docs-only-backend.ts";
-import { addFrontmatterWarning } from "../../src/agent/okf-middleware.ts";
+import { describe, expect, test } from "vitest";
 import { validateOkfFrontmatter } from "../../src/okf/frontmatter.ts";
 
 function markdown(frontmatter: string): string {
   return `---\n${frontmatter}\n---\n\n# Page\n`;
 }
 
-function backendWith(content: string) {
-  return {
-    readRaw: vi.fn(() => ({
-      data: {
-        content,
-        created_at: "2026-07-13T00:00:00.000Z",
-        mimeType: "text/markdown",
-        modified_at: "2026-07-13T00:00:00.000Z",
-      },
-    })),
-  } satisfies Pick<BackendProtocolV2, "readRaw">;
-}
-
-function mutationMessage(path = "/openwiki/page.md") {
-  return new ToolMessage({
-    content: "Successfully wrote file.",
-    metadata: { [MUTATION_PATH_METADATA_KEY]: path },
-    tool_call_id: "write-1",
-  });
-}
 
 describe("validateOkfFrontmatter", () => {
   test("accepts the required type and supported optional fields", () => {
@@ -195,78 +171,5 @@ describe("validateOkfFrontmatter", () => {
       ],
       valid: false,
     });
-  });
-});
-
-describe("addFrontmatterWarning", () => {
-  test("appends actionable validation details after an invalid wiki write", async () => {
-    const message = mutationMessage();
-    await addFrontmatterWarning(
-      message,
-      backendWith("# Missing front matter"),
-      "repository",
-      "write_file",
-    );
-
-    expect(message.content).toContain(
-      "YAML front matter was NOT formatted properly",
-    );
-    expect(message.content).toContain("[missing_opening_delimiter] line 1");
-    expect(message.content).toContain("MUST correct this file");
-  });
-
-  test("leaves valid files and unrelated tool calls unchanged", async () => {
-    const validMessage = mutationMessage();
-    const validBackend = backendWith(markdown("type: Reference"));
-    await addFrontmatterWarning(
-      validMessage,
-      validBackend,
-      "repository",
-      "edit_file",
-    );
-    expect(validMessage.content).toBe("Successfully wrote file.");
-
-    const outsideMessage = mutationMessage("/README.md");
-    const outsideBackend = backendWith("invalid");
-    await addFrontmatterWarning(
-      outsideMessage,
-      outsideBackend,
-      "repository",
-      "write_file",
-    );
-    expect(outsideBackend.readRaw).not.toHaveBeenCalled();
-
-    await addFrontmatterWarning(
-      mutationMessage(),
-      outsideBackend,
-      "repository",
-      "read_file",
-    );
-    expect(outsideBackend.readRaw).not.toHaveBeenCalled();
-  });
-
-  test("does not validate reserved index and log documents as concepts", async () => {
-    for (const fileName of ["index.md", "log.md"]) {
-      const backend = backendWith("# Reserved OKF document");
-      const message = mutationMessage(`/openwiki/architecture/${fileName}`);
-
-      await addFrontmatterWarning(message, backend, "repository", "write_file");
-
-      expect(backend.readRaw).not.toHaveBeenCalled();
-      expect(message.content).toBe("Successfully wrote file.");
-    }
-  });
-
-  test("edits tool messages nested in Command results", async () => {
-    const message = mutationMessage();
-    const command = { update: { messages: [message] } };
-    await addFrontmatterWarning(
-      command,
-      backendWith(markdown("title: Missing type")),
-      "repository",
-      "edit_file",
-    );
-
-    expect(message.content).toContain("[missing_type]");
   });
 });

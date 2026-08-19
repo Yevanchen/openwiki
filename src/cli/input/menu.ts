@@ -17,31 +17,6 @@ import type {
  */
 export const slashCommandOptions: SlashCommandOption[] = [
   {
-    description: "Switch the model provider",
-    id: "provider",
-    label: "/provider",
-  },
-  {
-    description: "Switch the current provider model",
-    id: "model",
-    label: "/model",
-  },
-  {
-    description: "Set reasoning effort for the current model",
-    id: "effort",
-    label: "/effort",
-  },
-  {
-    description: "Set the API key for the current provider",
-    id: "api-key",
-    label: "/api-key",
-  },
-  {
-    description: "Set or clear the LangSmith API key",
-    id: "langsmith-key",
-    label: "/langsmith-key",
-  },
-  {
     description: "Run an initial OpenWiki documentation pass",
     id: "init",
     label: "/init",

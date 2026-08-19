@@ -1,14 +1,9 @@
-import type {
-  BackendProtocolV2,
-  EditResult,
-  LsResult,
-  ReadRawResult,
-} from "deepagents";
+import type { BackendProtocol } from "../../src/agent/backend-protocol.ts";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
-import { OpenWikiLocalShellBackend } from "../../src/agent/docs-only-backend.ts";
+import { TestFilesystemBackend } from "../helpers/fs-backend.ts";
 import { validateWikiMermaid } from "../../src/mermaid/wiki.ts";
 
 /**
@@ -16,15 +11,16 @@ import { validateWikiMermaid } from "../../src/mermaid/wiki.ts";
  * real disk-backed backend does not surface deterministically, can be driven.
  */
 function stubBackend(handlers: {
-  ls?: (p: string) => LsResult;
-  readRaw?: (p: string) => ReadRawResult;
-  edit?: (p: string) => EditResult;
-}): BackendProtocolV2 {
+  ls?: (p: string) => Awaited<ReturnType<BackendProtocol["ls"]>>;
+  readRaw?: (p: string) => Awaited<ReturnType<BackendProtocol["readRaw"]>>;
+  edit?: (p: string) => Awaited<ReturnType<BackendProtocol["edit"]>>;
+}): BackendProtocol {
   return {
     ls: vi.fn(handlers.ls ?? (() => ({ files: [] }))),
     readRaw: vi.fn(handlers.readRaw ?? (() => ({ data: undefined }))),
     edit: vi.fn(handlers.edit ?? (() => ({}))),
-  } as unknown as BackendProtocolV2;
+    write: vi.fn(() => ({})),
+  } as unknown as BackendProtocol;
 }
 
 const BROKEN_BODY = ["flowchart TD", "  A[Start] --> end[The End]"].join("\n");
@@ -50,12 +46,7 @@ async function setup(outputMode: "local-wiki" | "repository" = "repository") {
   const rootDir = await mkdtemp(
     path.join(os.tmpdir(), "openwiki-mermaid-wiki-"),
   );
-  const backend = new OpenWikiLocalShellBackend({
-    docsOnly: true,
-    outputMode,
-    rootDir,
-    virtualMode: true,
-  });
+  const backend = new TestFilesystemBackend(rootDir);
   return { backend, rootDir };
 }
 

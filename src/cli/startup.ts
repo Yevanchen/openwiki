@@ -14,6 +14,7 @@ import {
   type OpenWikiProvider,
 } from "../config/constants.js";
 import { resolveExternalCliCredential } from "../auth/external-cli-auth.js";
+import { isMosooRuntimeSelected, resolveMosooConfig } from "../agent/mosoo.js";
 
 type ResolveStartupCommandOptions = {
   cwd?: string;
@@ -46,6 +47,20 @@ export async function resolveStartupCommand(
     command.shouldStart &&
     (command.print || !isStdinTTY)
   ) {
+    if (isMosooRuntimeSelected()) {
+      try {
+        resolveMosooConfig();
+      } catch (error) {
+        return {
+          kind: "error",
+          exitCode: 1,
+          message: error instanceof Error ? error.message : String(error),
+        };
+      }
+
+      return command;
+    }
+
     const provider = resolveConfiguredProvider();
     const missingEnvKey = await getMissingNonInteractiveProviderEnvKey(
       provider,

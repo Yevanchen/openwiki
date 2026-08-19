@@ -1,10 +1,4 @@
-import type {
-  BackendProtocolV2,
-  EditResult,
-  LsResult,
-  ReadRawResult,
-  WriteResult,
-} from "deepagents";
+import type { BackendProtocol } from "../../src/agent/backend-protocol.ts";
 import { describe, expect, test, vi } from "vitest";
 import {
   migrateWikiToOkf,
@@ -17,20 +11,22 @@ import {
  * driven directly.
  */
 function stubBackend(handlers: {
-  ls?: (p: string) => LsResult;
-  readRaw?: (p: string) => ReadRawResult;
-  edit?: (p: string) => EditResult;
-  write?: (p: string) => WriteResult;
-}): BackendProtocolV2 {
+  ls?: (p: string) => Awaited<ReturnType<BackendProtocol["ls"]>>;
+  readRaw?: (p: string) => Awaited<ReturnType<BackendProtocol["readRaw"]>>;
+  edit?: (p: string) => Awaited<ReturnType<BackendProtocol["edit"]>>;
+  write?: (p: string) => Awaited<ReturnType<BackendProtocol["write"]>>;
+}): BackendProtocol {
   return {
     ls: vi.fn(handlers.ls ?? (() => ({ files: [] }))),
     readRaw: vi.fn(handlers.readRaw ?? (() => ({ data: undefined }))),
     edit: vi.fn(handlers.edit ?? (() => ({}))),
     write: vi.fn(handlers.write ?? (() => ({}))),
-  } as unknown as BackendProtocolV2;
+  } as unknown as BackendProtocol;
 }
 
-function textData(content: string | string[] | Uint8Array): ReadRawResult {
+function textData(
+  content: string | string[] | Uint8Array,
+): Awaited<ReturnType<BackendProtocol["readRaw"]>> {
   return {
     data: {
       content,
@@ -41,7 +37,7 @@ function textData(content: string | string[] | Uint8Array): ReadRawResult {
   };
 }
 
-const rootListing: LsResult = {
+const rootListing: Awaited<ReturnType<BackendProtocol["ls"]>> = {
   files: [{ path: "/openwiki/page.md", is_dir: false }],
 };
 

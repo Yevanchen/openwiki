@@ -57,6 +57,9 @@ export const GOOGLE_APPLICATION_CREDENTIALS_ENV_KEY =
 export const DEFAULT_VERTEX_LOCATION = "global";
 export const OPENWIKI_PROVIDER_ENV_KEY = "OPENWIKI_PROVIDER";
 export const OPENWIKI_MODEL_ID_ENV_KEY = "OPENWIKI_MODEL_ID";
+export const MOSOO_API_BASE_ENV_KEY = "MOSOO_API_BASE";
+export const MOSOO_AGENT_ID_ENV_KEY = "MOSOO_AGENT_ID";
+export const MOSOO_API_TOKEN_ENV_KEY = "MOSOO_API_TOKEN";
 export const OPENWIKI_MAX_OUTPUT_TOKENS_ENV_KEY = "OPENWIKI_MAX_OUTPUT_TOKENS";
 export const OPENWIKI_STREAM_IDLE_TIMEOUT_ENV_KEY =
   "OPENWIKI_STREAM_IDLE_TIMEOUT";
@@ -1033,7 +1036,7 @@ export function resolveOpenAiCompatibleStreamMessages(
 
 // Some OpenAI-compatible gateways only serve the streaming transport: a
 // non-streaming request either gets rejected ("Stream must be set to true") or
-// returns HTTP 200 with empty content. DeepAgents' agent node issues
+// returns HTTP 200 with empty content. The legacy local agent issued
 // non-streaming `.invoke()` calls internally, so those deployments fail
 // silently — the run finishes with a blank wiki and no error. Opting in forces
 // the streaming transport for every generation, the same transport override the
